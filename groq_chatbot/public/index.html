@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Groq Chatbot</title>
+  <title>Groq Expert Chatbot</title>
   <style>
     #chat-area {
       margin: 20px auto;
@@ -24,10 +24,11 @@
       width: 80%;
     }
 
-    textarea {
+    select, textarea {
       width: 100%;
       padding: 10px;
       font-size: 16px;
+      margin-top: 10px;
     }
 
     .box {
@@ -62,72 +63,114 @@
   <div id="chat-area"></div>
 
   <div class="submit-area">
+    <select id="topic">
+      <option value="general">General</option>
+      <option value="fitness">Fitness</option>
+      <option value="healthcare">Healthcare</option>
+      <option value="finance">Finance</option>
+      <option value="education">Education</option>
+      <option value="innovation">Innovation</option>
+    </select>
     <textarea id="input" rows="3" placeholder="Ask something..."></textarea>
     <button id="btn">Submit</button>
   </div>
 
   <script>
-    const btn = document.getElementById("btn");
-    const input = document.getElementById("input");
-    const chatArea = document.getElementById("chat-area");
+  const btn = document.getElementById("btn");
+  const input = document.getElementById("input");
+  const chatArea = document.getElementById("chat-area");
+  const topicSelect = document.getElementById("topic");
 
-    let requestCount = 0;
-    const dailyLimit = 25;
+  let requestCount = 0;
+  const dailyLimit = 25;
 
-    btn.addEventListener("click", async () => {
-      const inputText = input.value.trim();
+  // Expert introductions
+  const expertIntros = {
+    fitness: "👋 Hi there! I'm your certified fitness coach. Ask me anything about workouts, diet, or healthy living.",
+    healthcare: "👩‍⚕️ Hello! I'm your trusted healthcare advisor. Feel free to ask about symptoms, wellness, or health tips.",
+    finance: "💰 Welcome! I'm your personal finance guide. I can help with saving, investing, and budgeting.",
+    education: "📚 Hey! I'm your education expert, here to guide you through learning, courses, and career planning.",
+    innovation: "🚀 Hello innovator! I’m your expert on creativity and cutting-edge ideas. Let’s brainstorm!",
+    general: "🤖 Hi! I’m your general-purpose chatbot. Ask me anything!"
+  };
 
-      if (!inputText || inputText.length < 2) {
-        alert("Please enter a longer question.");
-        return;
+  // Display expert intro when topic is changed
+  topicSelect.addEventListener("change", () => {
+    const selected = topicSelect.value;
+    const intro = expertIntros[selected] || expertIntros.general;
+
+    const introBox = document.createElement("div");
+    introBox.classList.add("box", "answer");
+    introBox.textContent = intro;
+
+    chatArea.innerHTML = ""; // Optional: Clear chat area on topic change
+    chatArea.appendChild(introBox);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  });
+
+  btn.addEventListener("click", async () => {
+    const inputText = input.value.trim();
+
+    if (!inputText || inputText.length < 2) {
+      alert("Please enter a longer question.");
+      return;
+    }
+
+    if (requestCount >= dailyLimit) {
+      alert("Daily limit reached. Try again tomorrow.");
+      return;
+    }
+
+    requestCount++;
+    btn.disabled = true;
+
+    const question = document.createElement("div");
+    question.classList.add("box");
+    question.textContent = inputText;
+    chatArea.appendChild(question);
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    input.value = "";
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: inputText,
+          topic: topicSelect.value
+        })
+      });
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        throw new Error("Invalid JSON: " + text);
       }
 
-      if (requestCount >= dailyLimit) {
-        alert("Daily limit reached. Try again tomorrow.");
-        return;
-      }
-
-      requestCount++;
-      btn.disabled = true;
-
-      const question = document.createElement("div");
-      question.classList.add("box");
-      question.textContent = inputText;
-      chatArea.appendChild(question);
+      const answer = document.createElement("div");
+      answer.classList.add("box", "answer");
+      answer.textContent = data.message || "No response.";
+      chatArea.appendChild(answer);
       chatArea.scrollTop = chatArea.scrollHeight;
 
-      input.value = "";
+    } catch (err) {
+      const errorDiv = document.createElement("div");
+      errorDiv.classList.add("box", "answer");
+      errorDiv.innerHTML = "⚠️ Error: " + err.message;
+      chatArea.appendChild(errorDiv);
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
-      try {
-        const res = await fetch(" http://localhost:5000/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: inputText })
-        });
+  // Auto-trigger intro on initial load (default topic)
+  window.addEventListener("DOMContentLoaded", () => {
+    topicSelect.dispatchEvent(new Event("change"));
+  });
+</script>
 
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (parseErr) {
-          throw new Error("Invalid JSON response: " + text);
-        }
-
-        const answer = document.createElement("div");
-        answer.classList.add("box", "answer");
-        answer.textContent = data.message || "No response.";
-        chatArea.appendChild(answer);
-        chatArea.scrollTop = chatArea.scrollHeight;
-
-      } catch (err) {
-        const errorDiv = document.createElement("div");
-        errorDiv.classList.add("box", "answer");
-        errorDiv.innerHTML = "⚠️ Error: " + err.message;
-        chatArea.appendChild(errorDiv);
-      } finally {
-        btn.disabled = false;
-      }
-    });
-  </script>
 </body>
 </html>
