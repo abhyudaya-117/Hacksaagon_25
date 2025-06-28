@@ -5,61 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Twin.ai - Chatbot</title>
   <style>
+    :root {
+      --light-bg: #ffffff;
+      --dark-bg: #1e1e1e;
+      --light-text: #000000;
+      --dark-text: #f5f5f5;
+      --light-input-bg: #f0f0f0;
+      --dark-input-bg: #2e2e2e;
+      --accent: #10a37f;
+      --box-light-answer: #d2ffe9;
+      --box-light-user: #c4dbfe;
+      --box-dark-answer: #145a47;
+      --box-dark-user: #2f4f90;
+    }
+
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      background-color: #ffffff;
-      color: #000;
-      transition: 0.3s;
-    }
-
-    body.dark {
-      background-color: #1e1e1e;
-      color: #f5f5f5;
-    }
-
-    .sidebar {
-      width: 220px;
-      padding: 1rem;
-      background: #f3f3f3;
-      border-right: 1px solid #ccc;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    body.dark .sidebar {
-      background: #2a2a2a;
-    }
-
-    .mode-box {
-      background: white;
-      padding: 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: 0.3s;
-    }
-
-    .mode-box.active {
-      border-color: #10a37f;
-      background: #e6f9f4;
-    }
-
-    .main {
-      flex: 1;
+      background-color: var(--light-bg);
+      color: var(--light-text);
+      transition: 0.3s ease;
       display: flex;
       flex-direction: column;
       height: 100vh;
     }
 
+    body.dark {
+      background-color: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
     .header {
+      width: 100%;
+      height: 60px;
       padding: 10px 20px;
       border-bottom: 1px solid #ccc;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-sizing: border-box;
+      background-color: var(--light-bg);
+    }
+
+    body.dark .header {
+      border-color: #444;
+      background-color: var(--dark-bg);
+    }
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-title img {
+      height: 32px;
+      width: auto;
     }
 
     .toggle-switch {
@@ -99,18 +100,83 @@
     }
 
     input:checked + .slider {
-      background-color: #10a37f;
+      background-color: var(--accent);
     }
 
     input:checked + .slider:before {
       transform: translateX(26px);
     }
 
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      height: calc(100vh - 60px); /* 60px is header height */
+      background-color: var(--light-input-bg);
+    }
+
+    body.dark .main {
+      background-color: #2e2e2e;
+    }
+
+    .sidebar {
+      width: 220px;
+      padding: 1rem;
+      background-color: #f3f3f3;
+      border-right: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    body.dark .sidebar {
+      background-color: var(--dark-input-bg);
+      border-color: #444;
+    }
+
+    .mode-box {
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.3s;
+      color: inherit;
+    }
+
+    body.dark .mode-box {
+      background: #333;
+      color: var(--dark-text);
+    }
+
+    .mode-box.active {
+      border-color: var(--accent);
+      background: #e6f9f4;
+    }
+
+    body.dark .mode-box.active {
+      background: var(--box-dark-answer);
+      border-color: var(--accent);
+    }
+
+    .chat-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
     #chat-area {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background: #f0f0f0;
+      background-color: var(--light-input-bg);
+      transition: background-color 0.3s ease;
+    }
+
+    body.dark #chat-area {
+      background-color: var(--dark-input-bg);
     }
 
     .box {
@@ -118,21 +184,43 @@
       padding: 12px;
       border-radius: 10px;
       max-width: 80%;
+      word-wrap: break-word;
     }
 
     .box.user {
-      background-color: #c4dbfe;
+      background-color: var(--box-light-user);
       align-self: flex-end;
     }
 
+    body.dark .box.user {
+      background-color: var(--box-dark-user);
+      color: var(--dark-text);
+    }
+
     .box.answer {
-      background-color: #d2ffe9;
+      background-color: var(--box-light-answer);
+    }
+
+    body.dark .box.answer {
+      background-color: var(--box-dark-answer);
+      color: var(--dark-text);
     }
 
     .input-area {
       display: flex;
       padding: 10px;
-      background-color: #f0f0f0;
+      margin: 0 1rem 2rem 1rem;
+      justify-content: center;
+      align-items: center;
+      height: 8vh;
+      background-color: var(--light-input-bg);
+      border-radius: 2rem;
+      border: 2px solid #c9c8c8;
+    }
+
+    body.dark .input-area {
+      background-color: var(--dark-input-bg);
+      border: 2px solid #555;
     }
 
     textarea {
@@ -140,10 +228,17 @@
       resize: none;
       font-size: 16px;
       padding: 10px;
+      background-color: transparent;
+      color: inherit;
+      border: none;
+    }
+
+    textarea:focus {
+      outline: none;
     }
 
     button {
-      background-color: #10a37f;
+      background-color: var(--accent);
       color: white;
       border: none;
       padding: 10px;
@@ -172,27 +267,36 @@
   </style>
 </head>
 <body>
-  <div class="sidebar" id="sidebar">
-    <div class="mode-box active" data-mode="focus">🔔 Focus Buddy</div>
-    <div class="mode-box" data-mode="chill">😎 Chill Chat</div>
-    <div class="mode-box" data-mode="life">🌱 Life Coach</div>
-    <div class="mode-box" data-mode="dev">👨‍💻 Dev Helper</div>
+  <div class="header">
+    <div class="logo-title">
+      <img src="https://cdn.prod.website-files.com/65c23bb1aac98e053fb42602/66094895b3bc4e51683de57e_cbb%20circle.png" alt="Logo" />
+      <h2 style="margin: 0;">Twin.ai</h2>
+    </div>
+    <label class="toggle-switch">
+      <input type="checkbox" id="theme-toggle" />
+      <span class="slider"></span>
+    </label>
   </div>
 
   <div class="main">
-    <div class="header">
-      <h2>Twin.ai</h2>
-      <label class="toggle-switch">
-        <input type="checkbox" id="theme-toggle" />
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div id="chat-area" class="chat-wrapper"></div>
+    <div class="sidebar" id="sidebar">
+  <div class="mode-box active" data-mode="casual">🧋 Casual Talk</div>
+  <div class="mode-box" data-mode="finance">💰 Finance</div>
+  <div class="mode-box" data-mode="healthcare">🩺 Healthcare</div>
+  <div class="mode-box" data-mode="career">💼 Career</div>
+  <div class="mode-box" data-mode="supplychain">📦 Supply Chain</div>
+  <div class="mode-box" data-mode="weather">🌦️ Weather</div>
+  <div class="mode-box" data-mode="movies">🎬 Movies</div>
+</div>
 
-    <div class="input-area">
-      <textarea id="input" rows="1" placeholder="Say or type something..."></textarea>
-      <button id="btn">➤</button>
-      <button id="mic-btn">🎤</button>
+
+    <div class="chat-wrapper">
+      <div id="chat-area"></div>
+      <div class="input-area">
+        <textarea id="input" rows="1" placeholder="Say or type something..."></textarea>
+        <button id="btn">➤</button>
+        <button id="mic-btn">🎤</button>
+      </div>
     </div>
   </div>
 
@@ -204,29 +308,41 @@
     const themeToggle = document.getElementById("theme-toggle");
     const modeBoxes = document.querySelectorAll(".mode-box");
 
-    let mode = "focus";
+    let mode = "casual";
     let messages = [];
 
-    const Humanise = " Speak naturally and conversationally like a human. Use pauses and short paragraphs. Keep the answers short and crisp, as per the user demands nut by default keep it short and crisp. Avoid robotic or overly formal language also avoid internal dialogues like `thinking`,`laughs` etc."
+    const Humanise = " Speak naturally and conversationally like a human. Use pauses and short paragraphs. Keep the answers short and crisp, as per the user demands nut by default keep it short and crisp, in case of explaining something first just give the brief on furthut query give more details . Avoid robotic or overly formal language also avoid internal dialogues like `thinking`,`laughs` etc.";
 
     const modePrompts = {
-      focus: {
-        intro: "🔔 I'm your Focus Buddy. Let's crush those tasks!",
-        prompt: "You are a productivity coach. Help users stay focused and avoid distractions." + Humanise
-      },
-      chill: {
-        intro: "😎 Hey! I’m your Chill Chat buddy. Let's just vibe.",
-        prompt: "You are a casual chat companion, talk freely and lightly." + Humanise
-      },
-      life: {
-        intro: "🌱 I'm your Life Coach. Let's set goals and grow.",
-        prompt: "You are a motivating life coach who helps people improve." + Humanise
-      },
-      dev: {
-        intro: "👨‍💻 Dev Helper here! Ask me anything about code.",
-        prompt: "You are a professional programming assistant for developers." + Humanise
-      }
-    };
+       casual: {
+    intro: "🧋 Casual Chat activated. Let's talk about anything!",
+    prompt: "You are a friendly chatbot for casual, lighthearted conversations. Respond playfully and keep it engaging." + Humanise
+  },
+  finance: {
+    intro: "💰 Finance Expert online. Let's talk money!",
+    prompt: "You are a knowledgeable finance assistant. Help users understand personal finance, budgeting, investing, and savings." + Humanise
+  },
+  healthcare: {
+    intro: "🩺 Healthcare Assistant ready. Your well-being matters!",
+    prompt: "You are a health-focused assistant. Provide general wellness advice, healthy habits, and explain medical terms (but never diagnose or prescribe)." + Humanise
+  },
+  career: {
+    intro: "💼 Career Coach online. Let's shape your future!",
+    prompt: "You are a career guide. Help users with resume tips, job searching, interview prep, and career path decisions." + Humanise
+  },
+  supplychain: {
+    intro: "📦 Supply Chain Expert reporting in!",
+    prompt: "You are an assistant specializing in supply chain and inventory management. Explain logistics, warehouse planning, and optimization techniques." + Humanise
+  },
+  weather: {
+    intro: "🌦️ Weather Buddy active. Let’s talk climate!",
+    prompt: "You are a climate and weather chatbot. Explain current weather conditions, forecasts, and how climate affects daily life." + Humanise
+  },
+  movies: {
+    intro: "🎬 Movie Recommender at your service!",
+    prompt: "You are a movie-savvy chatbot. Recommend movies based on mood, genre, or popular trends. Share brief summaries and ratings." + Humanise
+  }
+};
 
     const showIntro = () => {
       chatArea.innerHTML = "";
