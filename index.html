@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Class Predictor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background">
+    <div class="card">
+      <h2 class="title">📈 Stock Class Predictor</h2>
+      
+      <form id="predictForm">
+        <label for="input">Enter 10 feature values:</label>
+        <input type="text" id="input" placeholder="e.g., 98.7,102.4,0.95,1.2,180,130,65,0.28,1.7,1.05">
+        <button type="submit">Predict</button>
+      </form>
+      
+      <div class="result" id="result">Prediction result will appear here...</div>
+      
+      <div class="footer-note">ℹ️ Use values similar to training data for best results.</div>
+      <div class="disclaimer">
+        ⚠️ Disclaimer: This tool is powered by a machine learning model and is meant for experimental or educational use only. It does not guarantee accurate predictions and should not be relied upon for real financial decisions. The developer assumes no responsibility for any loss incurred.
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
